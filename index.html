@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kapital Five — Smart Real Estate Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --off-white: #f0f7f6;
+  --parchment: #e0efed;
+  --warm-dark: #0d2421;
+  --charcoal: #163530;
+  --gold: #2aada0;
+  --gold-light: #4ec9bc;
+  --muted: #6a9e98;
+  --ink: #0d2421;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--off-white);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── CURSOR ─── */
+.cursor {
+  position: fixed; width: 8px; height: 8px;
+  background: var(--ink); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s, background 0.3s;
+}
+.cursor-ring {
+  position: fixed; width: 32px; height: 32px;
+  border: 1px solid rgba(26,22,16,0.4); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease, border-color 0.3s;
+}
+.cursor.expanded { width: 6px; height: 6px; }
+.cursor-ring.expanded { width: 48px; height: 48px; border-color: rgba(26,22,16,0.2); }
+.cursor.light { background: #fff; }
+.cursor-ring.light { border-color: rgba(255,255,255,0.45); }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 60px;
+  transition: padding 0.5s ease, background 0.5s ease;
+}
+nav.scrolled {
+  padding: 16px 60px;
+  background: rgba(240,247,246,0.93);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(13,36,33,0.07);
+}
+nav.dark-nav .nav-links a,
+nav.dark-nav .nav-logo-text,
+nav.dark-nav .nav-logo-sub { color: rgba(255,255,255,0.75); }
+nav.dark-nav .nav-links a::after { background: rgba(255,255,255,0.6); }
+nav.dark-nav .nav-links a:hover { color: #fff; }
+nav.dark-nav .hamburger span { background: #fff; }
+nav.dark-nav .nav-cta { border-color: rgba(255,255,255,0.4) !important; }
+
+.nav-logo { text-decoration: none; display: flex; flex-direction: column; }
+.nav-logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px; font-weight: 400; color: var(--ink);
+  letter-spacing: 0.03em; line-height: 1; transition: color 0.4s;
+}
+.nav-logo-sub {
+  font-size: 8px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--muted); font-weight: 300; margin-top: 3px; transition: color 0.4s;
+}
+
+.nav-links { display: flex; gap: 44px; list-style: none; align-items: center; }
+.nav-links a {
+  color: var(--charcoal); text-decoration: none;
+  font-size: 10.5px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase;
+  position: relative; transition: color 0.3s;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0;
+  width: 0; height: 1px; background: var(--ink); transition: width 0.35s ease;
+}
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+  border: 1px solid var(--ink) !important;
+  padding: 9px 22px;
+}
+.nav-cta:hover { background: var(--ink); color: var(--off-white) !important; }
+.nav-cta::after { display: none !important; }
+
+.hamburger { display: none; flex-direction: column; gap: 6px; cursor: pointer; background: none; border: none; }
+.hamburger span { width: 22px; height: 1px; background: var(--ink); display: block; transition: all 0.3s; }
+
+/* ─── MOBILE MENU ─── */
+.mobile-menu {
+  position: fixed; inset: 0; background: var(--warm-dark); z-index: 999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px;
+  transform: translateX(100%); transition: transform 0.55s cubic-bezier(0.76,0,0.24,1);
+}
+.mobile-menu.open { transform: translateX(0); }
+.mobile-menu a {
+  font-family: 'Cormorant Garamond', serif; font-size: 42px;
+  color: rgba(255,255,255,0.7); text-decoration: none; letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+.mobile-menu a:hover { color: var(--gold-light); }
+.mobile-close {
+  position: absolute; top: 28px; right: 36px;
+  background: none; border: none; color: rgba(255,255,255,0.5);
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+}
+
+/* ─── HERO ─── */
+#hero {
+  position: relative; height: 100vh; min-height: 680px;
+  overflow: hidden; background: var(--warm-dark);
+}
+
+.hero-panels {
+  position: absolute; inset: 0; display: flex; z-index: 2;
+}
+.hero-panel {
+  flex: 1; position: relative; overflow: hidden; cursor: none;
+}
+.hero-panel::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(26,22,16,0.52);
+  transition: background 0.6s ease;
+}
+.hero-panel:hover::after { background: rgba(26,22,16,0.28); }
+.hero-panel-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change: transform;
+}
+.hero-panel:hover .hero-panel-bg { transform: scale(1.06); }
+
+.hero-divider {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: rgba(255,255,255,0.1); z-index: 20; pointer-events: none;
+}
+
+.hero-panel-info {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+  padding: 44px 36px;
+  background: linear-gradient(transparent, rgba(10,8,4,0.88));
+}
+.panel-prop-tag {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-light); margin-bottom: 9px; display: block;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.hero-panel:hover .panel-prop-tag { opacity: 1; transform: translateY(0); }
+.panel-prop-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300; color: #fff; line-height: 1.15;
+  margin-bottom: 14px; letter-spacing: 0.03em;
+}
+.panel-view-link {
+  display: inline-flex; align-items: center; gap: 20px;
+  color: rgba(255,255,255,0.65); text-decoration: none;
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: gap 0.4s, color 0.3s;
+}
+.panel-view-link::before {
+  content: ''; display: block; width: 28px; height: 1px;
+  background: rgba(255,255,255,0.4); flex-shrink: 0;
+  transition: width 0.4s, background 0.3s;
+}
+.hero-panel:hover .panel-view-link { color: #fff; gap: 30px; }
+.hero-panel:hover .panel-view-link::before { width: 42px; background: var(--gold-light); }
+
+/* Hero centered title */
+.hero-center-text {
+  position: absolute; top: 50%; left: 50%; z-index: 25;
+  transform: translate(-50%, -50%);
+  text-align: center; pointer-events: none;
+  opacity: 0; animation: heroIn 1.4s cubic-bezier(0.25,0.46,0.45,0.94) 0.2s forwards;
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 18px)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+.hero-eyebrow {
+  font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.38); margin-bottom: 18px;
+}
+.hero-main-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(60px, 8vw, 120px); font-weight: 300;
+  color: #fff; line-height: 0.9; letter-spacing: -0.02em; white-space: nowrap;
+}
+.hero-main-title em { font-style: italic; color: rgba(255,255,255,0.45); }
+.hero-sub-tag {
+  margin-top: 20px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+}
+
+.scroll-indicator {
+  position: absolute; bottom: 40px; left: 60px; z-index: 30;
+  display: flex; align-items: center; gap: 16px;
+  color: rgba(255,255,255,0.28); font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  opacity: 0; animation: fadeIn 1s ease 1.4s forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+.scroll-line {
+  width: 44px; height: 1px; background: rgba(255,255,255,0.12);
+  position: relative; overflow: hidden;
+}
+.scroll-line::after {
+  content: ''; position: absolute; left: -100%; top: 0; bottom: 0;
+  width: 100%; background: var(--gold);
+  animation: lineSlide 2.4s ease 1.4s infinite;
+}
+@keyframes lineSlide { 0%{left:-100%} 100%{left:100%} }
+
+/* ─── SEARCH ─── */
+.search-section {
+  background: var(--off-white); padding: 0 60px;
+}
+.search-container {
+  max-width: 1040px; margin: 0 auto;
+  border-bottom: 1px solid rgba(26,22,16,0.1);
+}
+.search-label {
+  display: block; padding: 48px 0 24px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted);
+}
+.search-bar {
+  display: flex; align-items: flex-end; padding-bottom: 40px;
+}
+.search-field {
+  flex: 1; padding-right: 32px; margin-right: 32px;
+  border-right: 1px solid rgba(26,22,16,0.08);
+  display: flex; flex-direction: column;
+}
+.search-field:last-of-type { border-right: none; margin-right: 0; padding-right: 0; }
+.search-field label {
+  font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.search-field input,
+.search-field select {
+  border: none; outline: none; background: transparent;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px; font-weight: 300; color: var(--ink); cursor: pointer; appearance: none;
+}
+.search-field input::placeholder { color: rgba(26,22,16,0.2); }
+.search-btn {
+  background: var(--ink); color: var(--off-white);
+  border: none; height: 46px; padding: 0 36px;
+  font-family: 'Jost', sans-serif; font-size: 9.5px; letter-spacing: 2.5px;
+  text-transform: uppercase; cursor: none;
+  transition: background 0.35s; white-space: nowrap; flex-shrink: 0;
+}
+.search-btn:hover { background: var(--gold); }
+
+/* ─── COMMONS ─── */
+section { padding: 120px 60px; }
+.section-eyebrow {
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 18px; margin-bottom: 22px;
+}
+.section-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--muted); }
+.section-h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 4.5vw, 68px); font-weight: 300;
+  color: var(--ink); line-height: 1.0; letter-spacing: -0.01em;
+}
+.section-h2 em { font-style: italic; color: var(--muted); }
+
+/* ─── STATEMENT ─── */
+#statement {
+  background: var(--off-white); padding: 100px 60px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  border-bottom: 1px solid rgba(26,22,16,0.07);
+}
+.statement-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 3vw, 46px); font-weight: 300;
+  color: var(--ink); max-width: 860px; line-height: 1.35; letter-spacing: 0.01em;
+}
+.statement-link {
+  margin-top: 48px; display: inline-flex; align-items: center; gap: 22px;
+  color: var(--ink); text-decoration: none;
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: gap 0.4s;
+}
+.statement-link::before {
+  content: ''; display: block; width: 36px; height: 1px; background: var(--ink);
+  transition: width 0.4s;
+}
+.statement-link:hover { gap: 32px; }
+.statement-link:hover::before { width: 54px; }
+
+/* ─── FEATURED LISTINGS ─── */
+#featured { padding: 0; }
+.featured-header {
+  padding: 80px 60px 56px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  border-bottom: 1px solid rgba(26,22,16,0.08);
+}
+.view-all-link {
+  display: inline-flex; align-items: center; gap: 18px;
+  color: var(--ink); text-decoration: none;
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: gap 0.4s;
+}
+.view-all-link::after {
+  content: ''; display: block; width: 32px; height: 1px; background: var(--ink);
+  transition: width 0.4s;
+}
+.view-all-link:hover { gap: 26px; }
+.view-all-link:hover::after { width: 48px; }
+
+.listings-panels {
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-template-rows: 580px 580px;
+}
+.listing-panel {
+  position: relative; overflow: hidden; cursor: none;
+  border-right: 1px solid rgba(26,22,16,0.06);
+  border-bottom: 1px solid rgba(26,22,16,0.06);
+}
+.listing-panel:nth-child(2) { border-right: none; }
+.listing-panel:nth-child(3) { border-bottom: none; }
+.listing-panel:nth-child(4) { border-right: none; border-bottom: none; }
+.listing-panel.wide { grid-column: span 2; }
+
+.listing-inner {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change: transform;
+}
+.listing-panel:hover .listing-inner { transform: scale(1.05); }
+
+.listing-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(26,22,16,0.72) 0%, rgba(26,22,16,0.08) 55%, transparent 100%);
+  transition: background 0.5s;
+}
+.listing-panel:hover .listing-overlay {
+  background: linear-gradient(to top, rgba(26,22,16,0.58) 0%, rgba(26,22,16,0.04) 50%, transparent 100%);
+}
+
+.listing-price {
+  position: absolute; top: 36px; right: 40px; z-index: 5;
+  font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 300;
+  color: rgba(255,255,255,0.65);
+  opacity: 0; transform: translateY(-5px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.listing-panel:hover .listing-price { opacity: 1; transform: translateY(0); }
+
+.listing-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 44px 48px; z-index: 5;
+}
+.listing-tag {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-light); margin-bottom: 9px; display: block;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.listing-panel:hover .listing-tag { opacity: 1; transform: translateY(0); }
+.listing-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 300; color: #fff;
+  line-height: 1.08; margin-bottom: 7px; letter-spacing: 0.02em;
+}
+.listing-panel.wide .listing-name { font-size: 50px; }
+.listing-location {
+  font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.45); margin-bottom: 20px;
+}
+.listing-view-btn {
+  display: inline-flex; align-items: center; gap: 18px;
+  color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: gap 0.4s, color 0.3s;
+}
+.listing-view-btn::before {
+  content: ''; display: block; width: 24px; height: 1px;
+  background: rgba(255,255,255,0.4); transition: width 0.4s, background 0.3s;
+}
+.listing-panel:hover .listing-view-btn { color: #fff; gap: 28px; }
+.listing-panel:hover .listing-view-btn::before { width: 38px; background: var(--gold-light); }
+
+/* ─── ABOUT ─── */
+#about {
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 0; background: var(--parchment);
+}
+.about-text-col {
+  padding: 120px 80px 120px 60px;
+  display: flex; flex-direction: column; justify-content: center;
+  border-right: 1px solid rgba(26,22,16,0.1);
+}
+.about-body-text {
+  font-size: 15px; color: var(--muted); line-height: 1.9; font-weight: 300;
+  max-width: 420px; margin-top: 24px;
+}
+.about-stats-row {
+  display: flex; gap: 44px; margin-top: 60px;
+  padding-top: 44px; border-top: 1px solid rgba(26,22,16,0.1);
+}
+.about-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px; font-weight: 300; color: var(--ink); line-height: 1;
+}
+.about-stat-label {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-top: 5px;
+}
+.about-visual-col {
+  position: relative; overflow: hidden; min-height: 580px;
+  background: linear-gradient(150deg, #2e2820 0%, #1a1610 100%);
+}
+.about-visual-svg {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+}
+
+/* ─── CEO ─── */
+#ceo {
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 0; background: var(--warm-dark);
+}
+.ceo-visual-col {
+  position: relative; min-height: 680px; overflow: hidden;
+  background: linear-gradient(160deg, #252018 0%, #1a1610 100%);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+}
+.ceo-text-col {
+  padding: 100px 80px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.ceo-eyebrow { color: var(--gold) !important; }
+.ceo-eyebrow::before { background: var(--gold) !important; }
+.ceo-h2 { color: #fff; }
+.ceo-h2 em { color: rgba(255,255,255,0.35); }
+.ceo-role {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-top: 10px; margin-bottom: 32px;
+}
+.ceo-bio { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.9; font-weight: 300; max-width: 400px; }
+.ceo-quote-block {
+  margin: 40px 0; padding: 26px 30px;
+  border-left: 2px solid var(--gold);
+}
+.ceo-quote-block p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-style: italic; font-weight: 300;
+  color: rgba(255,255,255,0.65); line-height: 1.55;
+}
+.ceo-creds { display: flex; gap: 14px; flex-wrap: wrap; }
+.cred-chip {
+  border: 1px solid rgba(255,255,255,0.1); padding: 9px 16px;
+  font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ─── SERVICES ─── */
+#services { background: var(--off-white); }
+.services-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 72px; padding-bottom: 44px;
+  border-bottom: 1px solid rgba(26,22,16,0.08);
+}
+.services-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-left: 1px solid rgba(26,22,16,0.08);
+}
+.service-item {
+  padding: 52px 40px; position: relative; overflow: hidden;
+  border-right: 1px solid rgba(26,22,16,0.08);
+  border-bottom: 1px solid rgba(26,22,16,0.08);
+  transition: background 0.4s; cursor: none;
+}
+.service-item:hover { background: var(--parchment); }
+.service-num {
+  font-family: 'Cormorant Garamond', serif; font-size: 68px; font-weight: 300;
+  color: rgba(26,22,16,0.05); line-height: 1; margin-bottom: 24px;
+}
+.service-glyph { font-size: 26px; margin-bottom: 18px; display: block; }
+.service-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300;
+  color: var(--ink); margin-bottom: 12px;
+}
+.service-desc { font-size: 13px; color: var(--muted); line-height: 1.8; font-weight: 300; }
+.service-arrow {
+  position: absolute; bottom: 32px; right: 32px;
+  font-size: 18px; color: rgba(26,22,16,0.12);
+  transition: transform 0.3s, color 0.3s;
+}
+.service-item:hover .service-arrow { transform: translate(3px, -3px); color: var(--gold); }
+
+/* ─── TESTIMONIALS ─── */
+#testimonials { background: var(--parchment); }
+.testimonials-header { text-align: center; margin-bottom: 72px; }
+.testimonials-header .section-eyebrow { justify-content: center; }
+.testimonials-header .section-eyebrow::before { display: none; }
+.testimonials-header .section-eyebrow::after { content: ''; display: block; width: 32px; height: 1px; background: var(--muted); }
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgba(26,22,16,0.1);
+  border-left: 1px solid rgba(26,22,16,0.1);
+}
+.testimonial-card {
+  padding: 48px 44px;
+  border-right: 1px solid rgba(26,22,16,0.1);
+  border-bottom: 1px solid rgba(26,22,16,0.1);
+  transition: background 0.3s; cursor: none;
+}
+.testimonial-card:hover { background: rgba(26,22,16,0.03); }
+.t-stars { color: var(--gold); font-size: 11px; letter-spacing: 4px; margin-bottom: 22px; }
+.t-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-style: italic; font-weight: 300;
+  color: var(--ink); line-height: 1.6; margin-bottom: 28px;
+}
+.t-author { display: flex; align-items: center; gap: 14px; }
+.t-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--off-white); font-size: 12px; font-weight: 300; flex-shrink: 0;
+}
+.t-name { font-size: 13px; font-weight: 400; color: var(--ink); }
+.t-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ─── CTA ─── */
+#cta {
+  background: var(--warm-dark); padding: 160px 60px;
+  text-align: center; position: relative; overflow: hidden;
+}
+#cta::before {
+  content: 'KAPITAL'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(100px, 14vw, 200px); font-weight: 300;
+  color: rgba(255,255,255,0.022); letter-spacing: 0.15em;
+  white-space: nowrap; pointer-events: none; line-height: 1;
+}
+.cta-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+.cta-eyebrow { color: var(--gold) !important; justify-content: center; }
+.cta-eyebrow::before { background: var(--gold) !important; }
+.cta-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(44px, 5.5vw, 78px); font-weight: 300;
+  color: #fff; line-height: 1.05; margin-top: 14px; margin-bottom: 26px;
+}
+.cta-title em { font-style: italic; color: rgba(255,255,255,0.38); }
+.cta-desc { font-size: 15px; color: rgba(255,255,255,0.38); line-height: 1.9; font-weight: 300; max-width: 500px; margin: 0 auto 52px; }
+.cta-actions { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+.btn-cta-primary {
+  display: inline-flex; align-items: center; gap: 14px;
+  background: var(--off-white); color: var(--ink); padding: 17px 40px;
+  text-decoration: none; font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.35s; cursor: none;
+}
+.btn-cta-primary:hover { background: var(--gold); color: #fff; }
+.btn-cta-ghost {
+  display: inline-flex; align-items: center; gap: 14px;
+  border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.55);
+  padding: 17px 36px; text-decoration: none;
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.35s; cursor: none;
+}
+.btn-cta-ghost:hover { border-color: rgba(255,255,255,0.45); color: #fff; }
+.cta-contact-row {
+  display: flex; justify-content: center; gap: 60px;
+  margin-top: 76px; padding-top: 56px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.cta-contact-label { font-size: 8.5px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 7px; }
+.cta-contact-val { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: rgba(255,255,255,0.5); }
+
+/* ─── FOOTER ─── */
+footer { background: #0e0c08; padding: 80px 60px 36px; border-top: 1px solid rgba(255,255,255,0.04); }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 56px; padding-bottom: 56px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.footer-brand-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; color: rgba(255,255,255,0.65); margin-bottom: 3px; }
+.footer-brand-sub { font-size: 8.5px; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,0.2); margin-bottom: 16px; }
+.footer-brand-desc { font-size: 13px; color: rgba(255,255,255,0.28); line-height: 1.85; max-width: 250px; font-weight: 300; }
+.footer-socials { display: flex; gap: 8px; margin-top: 22px; }
+.social-btn {
+  width: 34px; height: 34px; border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.28); text-decoration: none; font-size: 12px;
+  transition: all 0.3s; cursor: none;
+}
+.social-btn:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+.footer-col h4 { font-size: 8.5px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.22); margin-bottom: 20px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col a { color: rgba(255,255,255,0.38); text-decoration: none; font-size: 13px; font-weight: 300; transition: color 0.3s; }
+.footer-col a:hover { color: rgba(255,255,255,0.7); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 12px; color: rgba(255,255,255,0.18); font-weight: 300; }
+.footer-legal { display: flex; gap: 24px; }
+.footer-legal a { font-size: 12px; color: rgba(255,255,255,0.18); text-decoration: none; transition: color 0.3s; }
+.footer-legal a:hover { color: rgba(255,255,255,0.5); }
+
+/* ─── REVEAL ─── */
+.reveal {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.9s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.22s; }
+.reveal-delay-3 { transition-delay: 0.34s; }
+.reveal-delay-4 { transition-delay: 0.46s; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1100px) {
+  .listings-panels { grid-template-columns: 1fr; grid-template-rows: repeat(3, 480px); }
+  .listing-panel.wide { grid-column: span 1; }
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  nav, nav.dark-nav { padding: 18px 24px; }
+  nav.scrolled { padding: 12px 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  section { padding: 80px 24px; }
+  .search-section { padding: 0 24px; }
+  #hero { height: 90vh; }
+  .hero-panels { flex-direction: column; }
+  .hero-panel-info { padding: 28px; }
+  .panel-prop-name { font-size: 22px; }
+  .hero-main-title { font-size: 48px; white-space: normal; text-align: center; }
+  .scroll-indicator { left: 24px; }
+  #about { grid-template-columns: 1fr; }
+  .about-text-col { padding: 80px 24px; border-right: none; border-bottom: 1px solid rgba(26,22,16,0.08); }
+  .about-visual-col { min-height: 300px; }
+  #ceo { grid-template-columns: 1fr; }
+  .ceo-visual-col { min-height: 280px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .ceo-text-col { padding: 60px 24px; }
+  .featured-header { padding: 60px 24px 40px; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .listing-content { padding: 28px; }
+  .listing-name { font-size: 28px; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .cta-contact-row { flex-direction: column; gap: 28px; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 36px; }
+  .services-header { flex-direction: column; align-items: flex-start; gap: 18px; }
+}
+@media (max-width: 580px) {
+  .hero-main-title { font-size: 38px; }
+  .search-bar { flex-direction: column; }
+  .search-field { border-right: none; padding: 0 0 16px; margin-right: 0; border-bottom: 1px solid rgba(26,22,16,0.08); }
+  .search-field:last-of-type { border-bottom: none; }
+  .search-btn { width: 100%; height: 50px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .about-stats-row { gap: 28px; flex-wrap: wrap; }
+  .cta-actions { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMenu()">Close ✕</button>
+  <a href="#hero" onclick="toggleMenu()">Home</a>
+  <a href="#statement" onclick="toggleMenu()">About</a>
+  <a href="#featured" onclick="toggleMenu()">Properties</a>
+  <a href="#services" onclick="toggleMenu()">Services</a>
+  <a href="#ceo" onclick="toggleMenu()">Leadership</a>
+  <a href="#cta" onclick="toggleMenu()">Contact</a>
+</div>
+
+<!-- Nav -->
+<nav id="navbar" class="dark-nav">
+  <a href="#hero" class="nav-logo">
+    <span class="nav-logo-text">Kapital Five</span>
+    <span class="nav-logo-sub">Smart Real Estate Solutions · Nigeria</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#statement">About</a></li>
+    <li><a href="#featured">Properties</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#ceo">Leadership</a></li>
+    <li><a href="#cta" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section id="hero">
+  <!-- Three S&P-style split panels -->
+  <div class="hero-panels">
+
+    <div class="hero-panel">
+      <div class="hero-panel-bg" style="background:linear-gradient(160deg,#0d4a44 0%,#071f1c 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="sk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a7a70"/><stop offset="100%" stop-color="#4aada0"/></linearGradient></defs>
+          <rect width="500" height="800" fill="url(#sk1)"/>
+          <rect y="580" width="500" height="220" fill="#0d2e28"/>
+          <rect x="160" y="120" width="180" height="460" fill="#e0efed" opacity="0.8"/>
+          <rect x="140" y="100" width="220" height="28" fill="#c8e0dc"/>
+          <rect x="120" y="78" width="260" height="26" fill="#b0d0ca"/>
+          <g fill="#2aada0" opacity="0.6">
+            <rect x="172" y="138" width="28" height="38" rx="1"/><rect x="208" y="138" width="28" height="38" rx="1"/>
+            <rect x="244" y="138" width="28" height="38" rx="1"/><rect x="280" y="138" width="28" height="38" rx="1"/>
+            <rect x="172" y="190" width="28" height="38" rx="1"/><rect x="208" y="190" width="28" height="38" rx="1"/>
+            <rect x="244" y="190" width="28" height="38" rx="1"/><rect x="280" y="190" width="28" height="38" rx="1"/>
+            <rect x="172" y="242" width="28" height="38" rx="1"/><rect x="208" y="242" width="28" height="38" rx="1"/>
+            <rect x="244" y="242" width="28" height="38" rx="1"/><rect x="280" y="242" width="28" height="38" rx="1"/>
+            <rect x="172" y="294" width="28" height="38" rx="1"/><rect x="208" y="294" width="28" height="38" rx="1"/>
+            <rect x="244" y="294" width="28" height="38" rx="1"/><rect x="280" y="294" width="28" height="38" rx="1"/>
+            <rect x="172" y="346" width="28" height="38" rx="1"/><rect x="208" y="346" width="28" height="38" rx="1"/>
+            <rect x="244" y="346" width="28" height="38" rx="1"/><rect x="280" y="346" width="28" height="38" rx="1"/>
+            <rect x="172" y="398" width="28" height="38" rx="1"/><rect x="208" y="398" width="28" height="38" rx="1"/>
+            <rect x="244" y="398" width="28" height="38" rx="1"/><rect x="280" y="398" width="28" height="38" rx="1"/>
+          </g>
+          <rect x="215" y="460" width="70" height="120" fill="#1a5a50"/>
+          <circle cx="278" cy="522" r="5" fill="#4ec9bc"/>
+          <rect x="60" y="490" width="100" height="90" fill="#c8e0dc" opacity="0.75"/>
+          <rect x="340" y="500" width="100" height="80" fill="#c8e0dc" opacity="0.75"/>
+          <rect x="75" y="530" width="10" height="50" fill="#0d2421"/><ellipse cx="80" cy="514" rx="26" ry="32" fill="#1a5040" opacity="0.85"/>
+          <rect x="415" y="540" width="10" height="40" fill="#0d2421"/><ellipse cx="420" cy="524" rx="22" ry="28" fill="#1a5040" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="hero-panel-info">
+        <span class="panel-prop-tag">Smart Residential · Abuja</span>
+        <div class="panel-prop-name">Kapital Five<br>Towers</div>
+        <a href="#featured" class="panel-view-link">View</a>
+      </div>
+    </div>
+
+    <div class="hero-divider" style="left:33.33%"></div>
+
+    <div class="hero-panel">
+      <div class="hero-panel-bg" style="background:linear-gradient(160deg,#0a3830 0%,#051a14 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="sk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2aada0"/><stop offset="100%" stop-color="#4ec9bc"/></linearGradient></defs>
+          <rect width="500" height="800" fill="url(#sk2)"/>
+          <rect y="560" width="500" height="240" fill="#3a4030"/>
+          <rect x="90" y="360" width="320" height="200" fill="#e8dfd0" opacity="0.88"/>
+          <rect x="75" y="320" width="350" height="45" fill="#ddd3b8"/>
+          <polygon points="60,320 250,185 440,320" fill="#c8b880" opacity="0.82"/>
+          <rect x="80" y="290" width="28" height="40" fill="#b8a870"/>
+          <rect x="392" y="298" width="28" height="32" fill="#b8a870"/>
+          <rect x="200" y="380" width="100" height="180" fill="#8a7850"/>
+          <rect x="216" y="395" width="35" height="60" fill="#6a5830"/>
+          <rect x="249" y="395" width="35" height="60" fill="#6a5830"/>
+          <rect x="100" y="375" width="70" height="50" fill="#90b0c8" opacity="0.72"/>
+          <rect x="330" y="375" width="70" height="50" fill="#90b0c8" opacity="0.72"/>
+          <ellipse cx="250" cy="595" rx="95" ry="18" fill="#5a88aa" opacity="0.38"/>
+          <rect x="50" y="440" width="8" height="120" fill="#4a2a08"/><ellipse cx="54" cy="423" rx="32" ry="18" fill="#3a5a20" opacity="0.8"/>
+          <rect x="442" y="450" width="8" height="110" fill="#4a2a08"/><ellipse cx="446" cy="433" rx="28" ry="15" fill="#3a5a20" opacity="0.8"/>
+        </svg>
+      </div>
+      <div class="hero-panel-info">
+        <span class="panel-prop-tag">Premium Villa · Lagos</span>
+        <div class="panel-prop-name">Emerald Crown<br>Villas</div>
+        <a href="#featured" class="panel-view-link">View</a>
+      </div>
+    </div>
+
+    <div class="hero-divider" style="left:66.66%"></div>
+
+    <div class="hero-panel">
+      <div class="hero-panel-bg" style="background:linear-gradient(160deg,#082e28 0%,#030f0c 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="sk3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a6a60"/><stop offset="100%" stop-color="#3a9a90"/></linearGradient></defs>
+          <rect width="500" height="800" fill="url(#sk3)"/>
+          <rect y="570" width="500" height="230" fill="#303828"/>
+          <rect x="110" y="300" width="280" height="270" fill="#e0d8c8" opacity="0.88"/>
+          <rect x="90" y="265" width="320" height="40" fill="#d4caba"/>
+          <rect x="110" y="230" width="280" height="40" fill="#c8c0a8"/>
+          <rect x="130" y="200" width="240" height="35" fill="#bcb498"/>
+          <rect x="150" y="175" width="200" height="30" fill="#b0a888"/>
+          <rect x="130" y="320" width="90" height="70" fill="#90b0c8" opacity="0.72"/>
+          <rect x="280" y="320" width="90" height="70" fill="#90b0c8" opacity="0.72"/>
+          <rect x="130" y="410" width="42" height="50" fill="#90b0c8" opacity="0.55"/>
+          <rect x="182" y="410" width="42" height="50" fill="#90b0c8" opacity="0.55"/>
+          <rect x="276" y="410" width="42" height="50" fill="#90b0c8" opacity="0.55"/>
+          <rect x="328" y="410" width="42" height="50" fill="#90b0c8" opacity="0.55"/>
+          <rect x="210" y="440" width="80" height="130" fill="#6a5a3a"/>
+          <rect x="180" y="568" width="140" height="15" fill="#b0a888" opacity="0.45"/>
+          <rect x="68" y="480" width="8" height="90" fill="#3a2808"/><ellipse cx="72" cy="462" rx="30" ry="36" fill="#2a4a18" opacity="0.85"/>
+          <rect x="424" y="490" width="8" height="80" fill="#3a2808"/><ellipse cx="428" cy="472" rx="26" ry="32" fill="#2a4a18" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="hero-panel-info">
+        <span class="panel-prop-tag">Smart Duplex · Port Harcourt</span>
+        <div class="panel-prop-name">Teal Bay<br>Residences</div>
+        <a href="#featured" class="panel-view-link">View</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centered brand title -->
+  <div class="hero-center-text">
+    <div class="hero-eyebrow">Nigeria's Smartest Real Estate Solutions</div>
+    <div class="hero-main-title">Kapital <em>Five</em></div>
+    <div class="hero-sub-tag">Buy · Sell · Invest · Manage</div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll to Explore
+  </div>
+</section>
+
+<!-- ─── SEARCH ─── -->
+<div class="search-section">
+  <div class="search-container">
+    <span class="search-label reveal">Find Your Property</span>
+    <div class="search-bar reveal reveal-delay-1">
+      <div class="search-field">
+        <label>Location</label>
+        <input type="text" placeholder="Abuja, Lagos, Kano…">
+      </div>
+      <div class="search-field">
+        <label>Property Type</label>
+        <select>
+          <option>All Types</option>
+          <option>Residential</option>
+          <option>Commercial</option>
+          <option>Land</option>
+          <option>Duplex</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label>Price Range</label>
+        <select>
+          <option>Any Budget</option>
+          <option>Under ₦20M</option>
+          <option>₦20M – ₦50M</option>
+          <option>₦50M – ₦100M</option>
+          <option>₦100M+</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label>Bedrooms</label>
+        <select>
+          <option>Any</option>
+          <option>1 – 2 Beds</option>
+          <option>3 – 4 Beds</option>
+          <option>5+ Beds</option>
+        </select>
+      </div>
+      <button class="search-btn">Search</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── STATEMENT ─── -->
+<section id="statement">
+  <div class="section-eyebrow reveal">Smart Solutions for a New Era</div>
+  <p class="statement-body reveal reveal-delay-1">
+    Kapital Five is Nigeria's forward-thinking real estate solution — specialising in property sales, investment advisory, land acquisition, and portfolio management. From first-time buyers to seasoned investors, we deliver intelligent, transparent, and results-driven real estate services.
+  </p>
+  <a href="#about" class="statement-link reveal reveal-delay-2">About Us</a>
+</section>
+
+<!-- ─── FEATURED LISTINGS ─── -->
+<section id="featured">
+  <div class="featured-header">
+    <div>
+      <div class="section-eyebrow reveal">Portfolio</div>
+      <h2 class="section-h2 reveal reveal-delay-1">Featured <em>Properties</em></h2>
+    </div>
+    <a href="#" class="view-all-link reveal reveal-delay-2">View All Listings</a>
+  </div>
+
+  <div class="listings-panels">
+
+    <!-- Property 1 — wide -->
+    <div class="listing-panel wide">
+      <div class="listing-inner" style="background:linear-gradient(150deg,#0d3a30 0%,#071a14 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 1200 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="sw1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a7a70"/><stop offset="100%" stop-color="#3aada0"/></linearGradient>
+          </defs>
+          <rect width="1200" height="580" fill="url(#sw1)"/>
+          <rect y="440" width="1200" height="140" fill="#0d2820"/>
+          <!-- Central tower -->
+          <rect x="490" y="90" width="220" height="350" fill="#e0f0ee" opacity="0.85"/>
+          <rect x="470" y="70" width="260" height="28" fill="#c8e0dc"/>
+          <rect x="450" y="50" width="300" height="24" fill="#b0d0cc"/>
+          <!-- Windows -->
+          <g fill="#2aada0" opacity="0.6">
+            <rect x="504" y="106" width="32" height="44"/><rect x="544" y="106" width="32" height="44"/><rect x="584" y="106" width="32" height="44"/><rect x="624" y="106" width="32" height="44"/><rect x="664" y="106" width="32" height="44"/>
+            <rect x="504" y="162" width="32" height="44"/><rect x="544" y="162" width="32" height="44"/><rect x="584" y="162" width="32" height="44"/><rect x="624" y="162" width="32" height="44"/><rect x="664" y="162" width="32" height="44"/>
+            <rect x="504" y="218" width="32" height="44"/><rect x="544" y="218" width="32" height="44"/><rect x="584" y="218" width="32" height="44"/><rect x="624" y="218" width="32" height="44"/><rect x="664" y="218" width="32" height="44"/>
+            <rect x="504" y="274" width="32" height="44"/><rect x="544" y="274" width="32" height="44"/><rect x="584" y="274" width="32" height="44"/><rect x="624" y="274" width="32" height="44"/><rect x="664" y="274" width="32" height="44"/>
+            <rect x="504" y="330" width="32" height="44"/><rect x="544" y="330" width="32" height="44"/><rect x="584" y="330" width="32" height="44"/><rect x="624" y="330" width="32" height="44"/><rect x="664" y="330" width="32" height="44"/>
+          </g>
+          <!-- Flanking towers -->
+          <rect x="300" y="180" width="185" height="260" fill="#c8e0dc" opacity="0.8"/>
+          <rect x="715" y="200" width="185" height="240" fill="#c8e0dc" opacity="0.75"/>
+          <rect x="130" y="260" width="165" height="180" fill="#b0d0ca" opacity="0.7"/>
+          <rect x="905" y="280" width="165" height="160" fill="#b0d0ca" opacity="0.7"/>
+          <!-- Trees -->
+          <rect x="60" y="380" width="12" height="60" fill="#0d2421"/><ellipse cx="66" cy="360" rx="38" ry="46" fill="#1a5040" opacity="0.8"/>
+          <rect x="1130" y="372" width="12" height="68" fill="#0d2421"/><ellipse cx="1136" cy="350" rx="40" ry="50" fill="#1a5040" opacity="0.8"/>
+          <rect x="860" y="388" width="10" height="52" fill="#0d2421"/><ellipse cx="865" cy="370" rx="30" ry="36" fill="#1a5040" opacity="0.75"/>
+          <rect x="325" y="394" width="10" height="46" fill="#0d2421"/><ellipse cx="330" cy="378" rx="28" ry="34" fill="#1a5040" opacity="0.75"/>
+        </svg>
+      </div>
+      <div class="listing-overlay"></div>
+      <div class="listing-price">₦285,000,000</div>
+      <div class="listing-content">
+        <span class="listing-tag">New Development · Abuja, FCT</span>
+        <div class="listing-name">Kapital Five Grand Residences</div>
+        <div class="listing-location">Central Business District · Abuja</div>
+        <a href="#" class="listing-view-btn">View Property</a>
+      </div>
+    </div>
+
+    <!-- Property 2 -->
+    <div class="listing-panel">
+      <div class="listing-inner" style="background:linear-gradient(150deg,#0a4a40 0%,#051f1a 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 600 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="sw2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2aada0"/><stop offset="100%" stop-color="#4ec9bc"/></linearGradient></defs>
+          <rect width="600" height="580" fill="url(#sw2)"/>
+          <rect y="450" width="600" height="130" fill="#0a2820"/>
+          <rect x="100" y="280" width="400" height="170" fill="#e0f0ee" opacity="0.88"/>
+          <rect x="82" y="242" width="436" height="44" fill="#c8e0dc"/>
+          <polygon points="68,242 300,128 532,242" fill="#1a8a80" opacity="0.82"/>
+          <rect x="76" y="214" width="30" height="34" fill="#2aada0"/>
+          <rect x="494" y="220" width="30" height="28" fill="#2aada0"/>
+          <rect x="200" y="298" width="95" height="152" fill="#1a6a60"/>
+          <rect x="305" y="298" width="95" height="152" fill="#1a6a60" opacity="0.9"/>
+          <rect x="216" y="312" width="36" height="65" fill="#0d4a42"/>
+          <rect x="348" y="312" width="36" height="65" fill="#0d4a42"/>
+          <rect x="108" y="293" width="74" height="56" fill="#4ec9bc" opacity="0.4"/>
+          <rect x="418" y="293" width="74" height="56" fill="#4ec9bc" opacity="0.4"/>
+          <ellipse cx="300" cy="520" rx="105" ry="22" fill="#2aada0" opacity="0.3"/>
+          <rect x="42" y="388" width="9" height="62" fill="#0d2421"/><ellipse cx="46" cy="370" rx="30" ry="18" fill="#1a5040" opacity="0.78"/>
+          <rect x="549" y="398" width="9" height="52" fill="#0d2421"/><ellipse cx="553" cy="382" rx="27" ry="15" fill="#1a5040" opacity="0.78"/>
+        </svg>
+      </div>
+      <div class="listing-overlay"></div>
+      <div class="listing-price">₦145,000,000</div>
+      <div class="listing-content">
+        <span class="listing-tag">Luxury Villa · Lagos State</span>
+        <div class="listing-name">Victoria Crown Villas</div>
+        <div class="listing-location">Victoria Island · Lagos</div>
+        <a href="#" class="listing-view-btn">View Property</a>
+      </div>
+    </div>
+
+    <!-- Property 3 -->
+    <div class="listing-panel">
+      <div class="listing-inner" style="background:linear-gradient(150deg,#0a3530 0%,#051510 100%);">
+        <svg width="100%" height="100%" viewBox="0 0 600 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="sw3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a7a70"/><stop offset="100%" stop-color="#3aada0"/></linearGradient></defs>
+          <rect width="600" height="580" fill="url(#sw3)"/>
+          <rect y="460" width="600" height="120" fill="#0d2820"/>
+          <rect x="120" y="240" width="360" height="220" fill="#e0f0ee" opacity="0.88"/>
+          <rect x="100" y="205" width="400" height="40" fill="#c8e0dc"/>
+          <rect x="118" y="170" width="364" height="40" fill="#b0d0ca"/>
+          <rect x="138" y="140" width="324" height="35" fill="#9ac0bc"/>
+          <rect x="158" y="115" width="284" height="30" fill="#88b0a8"/>
+          <rect x="136" y="265" width="108" height="75" fill="#4ec9bc" opacity="0.5"/>
+          <rect x="356" y="265" width="108" height="75" fill="#4ec9bc" opacity="0.5"/>
+          <rect x="136" y="358" width="48" height="52" fill="#4ec9bc" opacity="0.38"/>
+          <rect x="194" y="358" width="48" height="52" fill="#4ec9bc" opacity="0.38"/>
+          <rect x="358" y="358" width="48" height="52" fill="#4ec9bc" opacity="0.38"/>
+          <rect x="416" y="358" width="48" height="52" fill="#4ec9bc" opacity="0.38"/>
+          <rect x="258" y="385" width="84" height="75" fill="#1a5a50"/>
+          <rect x="270" y="396" width="28" height="64" fill="#0d3a30"/>
+          <rect x="302" y="396" width="28" height="64" fill="#0d3a30"/>
+          <rect x="185" y="460" width="230" height="12" fill="#2aada0" opacity="0.4"/>
+          <rect x="64" y="398" width="10" height="62" fill="#0d2421"/><ellipse cx="69" cy="378" rx="32" ry="38" fill="#1a5040" opacity="0.84"/>
+          <rect x="526" y="408" width="10" height="52" fill="#0d2421"/><ellipse cx="531" cy="388" rx="28" ry="34" fill="#1a5040" opacity="0.84"/>
+        </svg>
+      </div>
+      <div class="listing-overlay"></div>
+      <div class="listing-price">₦68,000,000</div>
+      <div class="listing-content">
+        <span class="listing-tag">Smart Duplex · Port Harcourt</span>
+        <div class="listing-name">Teal Bay Residences</div>
+        <div class="listing-location">GRA Phase 2 · Port Harcourt</div>
+        <a href="#" class="listing-view-btn">View Property</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── ABOUT ─── -->
+<section id="about">
+  <div class="about-text-col">
+    <div class="section-eyebrow reveal">Our Story</div>
+    <h2 class="section-h2 reveal reveal-delay-1">Smart Solutions for <em>Every</em> Client</h2>
+    <p class="about-body-text reveal reveal-delay-2">
+      Kapital Five was built on a single conviction — that every Nigerian deserves intelligent, transparent real estate services. From residential sales in Abuja to commercial investments across Lagos and Port Harcourt, we combine data-driven insight with deep market knowledge to deliver results that last.
+    </p>
+    <p class="about-body-text reveal reveal-delay-3" style="margin-top:14px">
+      We serve both first-time buyers and seasoned investors with a fully integrated offering — from property search and legal due diligence to investment advisory and ongoing estate management.
+    </p>
+    <div class="about-stats-row reveal reveal-delay-4">
+      <div>
+        <div class="about-stat-num">500+</div>
+        <div class="about-stat-label">Homes Delivered</div>
+      </div>
+      <div>
+        <div class="about-stat-num">15+</div>
+        <div class="about-stat-label">Years Experience</div>
+      </div>
+      <div>
+        <div class="about-stat-num">12</div>
+        <div class="about-stat-label">States Covered</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual-col">
+    <div class="about-visual-svg">
+      <svg width="72%" height="72%" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
+        <rect x="80" y="120" width="240" height="280" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <rect x="60" y="100" width="280" height="24" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+        <rect x="40" y="78" width="320" height="26" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <rect x="100" y="148" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.38)" stroke-width="1"/>
+        <rect x="174" y="148" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.38)" stroke-width="1"/>
+        <rect x="248" y="148" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.38)" stroke-width="1"/>
+        <rect x="100" y="228" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.3)" stroke-width="1"/>
+        <rect x="174" y="228" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.3)" stroke-width="1"/>
+        <rect x="248" y="228" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.3)" stroke-width="1"/>
+        <rect x="100" y="308" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.22)" stroke-width="1"/>
+        <rect x="248" y="308" width="52" height="62" fill="none" stroke="rgba(42,173,160,0.22)" stroke-width="1"/>
+        <rect x="164" y="310" width="72" height="90" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+        <line x1="30" y1="400" x2="370" y2="400" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="200" y="468" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" fill="rgba(42,173,160,0.2)" letter-spacing="8">KAPITAL FIVE</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CEO ─── -->
+<section id="ceo">
+  <div class="ceo-visual-col">
+    <svg width="70%" height="70%" viewBox="0 0 380 480" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+      <ellipse cx="190" cy="138" rx="74" ry="88" fill="rgba(42,173,160,0.08)" stroke="rgba(42,173,160,0.18)" stroke-width="1"/>
+      <path d="M 78 480 Q 78 278 190 278 Q 302 278 302 480 Z" fill="rgba(42,173,160,0.05)" stroke="rgba(42,173,160,0.14)" stroke-width="1"/>
+      <line x1="28" y1="480" x2="352" y2="480" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <rect x="48" y="18" width="284" height="1" fill="rgba(255,255,255,0.05)"/>
+      <rect x="96" y="418" width="188" height="1" fill="rgba(42,173,160,0.2)"/>
+    </svg>
+  </div>
+  <div class="ceo-text-col">
+    <div class="section-eyebrow ceo-eyebrow reveal">Leadership</div>
+    <h2 class="section-h2 ceo-h2 reveal reveal-delay-1">&nbsp;</h2>
+    <div class="ceo-role reveal reveal-delay-1">Founder &amp; Chief Executive Officer</div>
+    <p class="ceo-bio reveal reveal-delay-2">&nbsp;</p>
+    <div class="ceo-creds reveal reveal-delay-4">
+      <div class="cred-chip">&nbsp;</div>
+      <div class="cred-chip">&nbsp;</div>
+      <div class="cred-chip">&nbsp;</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SERVICES ─── -->
+<section id="services">
+  <div class="services-header">
+    <div>
+      <div class="section-eyebrow reveal">What We Do</div>
+      <h2 class="section-h2 reveal reveal-delay-1">Our <em>Services</em></h2>
+    </div>
+    <p class="reveal reveal-delay-2" style="font-size:14px;color:var(--muted);max-width:300px;line-height:1.85;font-weight:300">
+      A complete real estate ecosystem, curated for buyers, investors and developers who demand smart, reliable solutions.
+    </p>
+  </div>
+  <div class="services-grid">
+    <div class="service-item reveal">
+      <div class="service-num">01</div>
+      <span class="service-glyph">◈</span>
+      <div class="service-title">Residential Sales</div>
+      <p class="service-desc">Premium homes across Nigeria's most desirable locations — from compact starter units to sprawling luxury estates.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-item reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <span class="service-glyph">◇</span>
+      <div class="service-title">Commercial Property</div>
+      <p class="service-desc">Grade A offices, retail spaces and mixed-use developments positioned for maximum investment returns.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-item reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <span class="service-glyph">△</span>
+      <div class="service-title">Land Acquisition</div>
+      <p class="service-desc">Verified, title-clear plots in strategic growth corridors, vetted by our in-house legal and surveying team.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-item reveal reveal-delay-3">
+      <div class="service-num">04</div>
+      <span class="service-glyph">○</span>
+      <div class="service-title">Property Management</div>
+      <p class="service-desc">End-to-end estate management that protects your investment and delivers a seamless living experience.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section id="testimonials">
+  <div class="testimonials-header">
+    <div class="section-eyebrow reveal">Client Stories</div>
+    <h2 class="section-h2 reveal reveal-delay-1">What Our <em>Clients Say</em></h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Kapital Five made my dream of owning a home in Abuja a reality. The process was transparent, professional, and seamless from start to finish."</p>
+      <div class="t-author">
+        <div class="t-avatar">AO</div>
+        <div>
+          <div class="t-name">Adaeze Okonkwo</div>
+          <div class="t-role">Homeowner, Abuja</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-1">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"The smart approach to real estate at Kapital Five exceeded every expectation. I highly recommend them for anyone serious about real estate investment."</p>
+      <div class="t-author">
+        <div class="t-avatar">BM</div>
+        <div>
+          <div class="t-name">Bello Mohammed</div>
+          <div class="t-role">Investor, Kano</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-2">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"The Kapital Five team's dedication to delivering on their promises is truly remarkable. This is a company built on integrity and smart solutions."</p>
+      <div class="t-author">
+        <div class="t-avatar">CT</div>
+        <div>
+          <div class="t-name">Chioma Tunde</div>
+          <div class="t-role">Property Owner, Lagos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section id="cta">
+  <div class="cta-inner">
+    <div class="section-eyebrow cta-eyebrow reveal">Strategise Your Next Project</div>
+    <h2 class="cta-title reveal reveal-delay-1">Schedule a <em>Private</em><br>Consultation</h2>
+    <p class="cta-desc reveal reveal-delay-2">Whether you are a first-time buyer, seasoned investor, or property developer — our team is ready to guide you every step of the way.</p>
+    <div class="cta-actions reveal reveal-delay-3">
+      <a href="tel:+2348000000000" class="btn-cta-primary">Schedule Consultation <span style="opacity:.45">→</span></a>
+      <a href="#featured" class="btn-cta-ghost">Browse Properties</a>
+    </div>
+    <div class="cta-contact-row reveal reveal-delay-4">
+      <div>
+        <div class="cta-contact-label">Call Us</div>
+        <div class="cta-contact-val">+234 800 KAPITAL</div>
+      </div>
+      <div>
+        <div class="cta-contact-label">Email</div>
+        <div class="cta-contact-val">hello@kapitalfive.com</div>
+      </div>
+      <div>
+        <div class="cta-contact-label">Head Office</div>
+        <div class="cta-contact-val">Lagos &amp; Abuja, Nigeria</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">Kapital Five</div>
+      <div class="footer-brand-sub">Smart Real Estate Solutions · Nigeria</div>
+      <p class="footer-brand-desc">Delivering intelligent, transparent, and results-driven real estate services across Nigeria for buyers, investors, and developers.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn">f</a>
+        <a href="#" class="social-btn">in</a>
+        <a href="#" class="social-btn">𝕏</a>
+        <a href="#" class="social-btn">▶</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#statement">About Us</a></li>
+        <li><a href="#ceo">Leadership</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Properties</h4>
+      <ul>
+        <li><a href="#featured">All Listings</a></li>
+        <li><a href="#">Residential</a></li>
+        <li><a href="#">Commercial</a></li>
+        <li><a href="#">Land for Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Locations</h4>
+      <ul>
+        <li><a href="#">Abuja, FCT</a></li>
+        <li><a href="#">Lagos State</a></li>
+        <li><a href="#">Kano State</a></li>
+        <li><a href="#">Port Harcourt</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 Kapital Five. All rights reserved.</p>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ─── CURSOR ───
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+});
+(function animRing() {
+  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+const interactables = document.querySelectorAll('a, button, .listing-panel, .hero-panel, .service-item, .testimonial-card');
+interactables.forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.classList.add('expanded'); ring.classList.add('expanded'); });
+  el.addEventListener('mouseleave', () => { cursor.classList.remove('expanded'); ring.classList.remove('expanded'); });
+});
+
+// ─── NAVBAR ───
+const nav = document.getElementById('navbar');
+const hero = document.getElementById('hero');
+window.addEventListener('scroll', () => {
+  const heroBottom = hero.offsetHeight - 60;
+  if (window.scrollY > heroBottom) {
+    nav.classList.remove('dark-nav');
+    nav.classList.add('scrolled');
+    cursor.classList.remove('light'); ring.classList.remove('light');
+  } else {
+    nav.classList.add('dark-nav');
+    nav.classList.remove('scrolled');
+    cursor.classList.add('light'); ring.classList.add('light');
+  }
+});
+// start in light mode on hero
+cursor.classList.add('light'); ring.classList.add('light');
+
+// ─── MOBILE MENU ───
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ─── REVEAL ───
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => io.observe(el));
+
+// ─── SMOOTH SCROLL ───
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); document.getElementById('mobileMenu').classList.remove('open'); }
+  });
+});
+
+// ─── HERO PARALLAX ───
+window.a
